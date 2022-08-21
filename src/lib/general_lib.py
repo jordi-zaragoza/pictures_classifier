@@ -1,0 +1,71 @@
+import os
+import shutil
+# import tensorflow as tf
+import time
+
+
+# Folder creation ------------------------------------------------------------------------------------------------
+def create_folder(path):
+    exist = os.path.exists(path)
+    if not exist:
+        os.makedirs(path)
+        print("The new directory is created!")
+        time.sleep(2)
+
+    # Wait until it's created
+    while True:
+        if os.path.isdir(path):
+            break
+        time.sleep(1)
+
+
+def create_label_folders(directory_save_eyes, labels):
+    for label in labels:
+        create_folder(directory_save_eyes + '/' + label)
+
+
+# Extensions ------------------------------------------------------------------------------------------------
+def check_extension_file(name, extensions):
+    for ext in extensions:
+        if ext in name:
+            return True
+    return False
+
+
+def filter_extensions(lst, extensions):
+    return [name for name in lst if check_extension_file(name, extensions)]
+
+
+def filter_images(lst):
+    images_extensions = ('.jpg', '.jpeg', '.png', '.gif', '.tiff', '.psd', '.pdf', '.eps')
+    return filter_extensions(lst, images_extensions)
+
+
+def filter_faces(data, flt='closed_eyes'):
+    return list(data[data[flt] > 0].file_name)
+
+
+# Move files ------------------------------------------------------------------------------------------------
+def move_files(files_list, path_directory, path_to_save):
+    create_folder(path_to_save)
+    for file_name in files_list:
+        try:
+            shutil.move(path_directory + '/' + file_name, path_to_save + '/' + file_name)
+        except:
+            print("Picture ", file_name, " not found.")
+
+
+def move_file(file_name, path_directory, path_to_save):
+    create_folder(path_to_save)
+    try:
+        shutil.move(path_directory + '/' + file_name, path_to_save + '/' + file_name)
+    except:
+        print("Picture ", file_name, " not found.")
+
+
+# Save files ------------------------------------------------------------------------------------------------
+# def save_image(image, image_name, path_directory):
+#     create_folder(path_directory)
+#     tf.keras.utils.save_img(
+#         path_directory + '/' + image_name, image, data_format=None, file_format=None, scale=True
+#     )
