@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from lib import general_lib
 
 
-def save_model(model, model_name='model_eye_right'):
+def save_model(model, model_name):
     general_lib.create_folder('model')
     model_json = model.to_json()
     with open('model/' + model_name + ".json", "w") as json_file:
@@ -16,7 +16,7 @@ def save_model(model, model_name='model_eye_right'):
     print("Saved model to disk")
 
 
-def load_model(model_name='model_eye_right'):
+def load_model(model_name):
     # load json and create model
     json_file = open('model/' + model_name + '.json', 'r')
     loaded_model_json = json_file.read()

@@ -35,7 +35,7 @@ def classify_faces(path_eyes='output/results'):
     pictures_table.to_csv(path_eyes+'/pictures_classification.csv')
 
 
-def sort_faces(path='output/faces'):
+def sort_sunglasses(path='output/faces'):
     image_list = os.listdir(path)
     image_list = general_lib.filter_images(image_list)
 
@@ -43,14 +43,15 @@ def sort_faces(path='output/faces'):
 
     for image_name in image_list:
         face_image = tf.keras.preprocessing.image.load_img(path + '/' + image_name)
-        face_image = tf.keras.preprocessing.image.img_to_array(face_image)
+        face_image = tf.keras.preprocessing.image.img_to_array(face_image)        
+        
         sunglasses = sunglasses_lib.uses_sunglasses(face_image, model_sunglasses)
 
         if sunglasses:
             general_lib.move_file(image_name, path, path + '/sunglasses')
+            
 
-
-def store_faces_single(directory, image_name, min_proportion=0.05, min_size=50):
+def store_faces_single(directory, image_name, directory_store='output/faces', min_proportion=0.05, min_size=50):
     """
     This method stores the faces of a given picture on a folder called faces
     """
@@ -65,17 +66,17 @@ def store_faces_single(directory, image_name, min_proportion=0.05, min_size=50):
         face_image = base_image[top:bottom, left:right]
 
         if valid_proportion(face_image, base_image, min_proportion, min_size):
-            general_lib.save_image(face_image, image_name.split('.')[0] + '_' + str(num) + '.jpg', 'output/faces')
+            general_lib.save_image(face_image, image_name.split('.')[0] + '_' + str(num) + '.jpg', directory_store)
         else:
             print('Face', str(num), ': Not valid proportion ', face_image.shape[0], '->', base_image.shape[0])
 
 
-def store_faces_from_directory(directory):
+def store_faces_from_directory(directory, directory_store='output/faces', min_proportion=0.05, min_size=50):
     image_list = os.listdir(directory)
     image_list = general_lib.filter_images(image_list)
 
     for image_name in image_list:
-        store_faces_single(directory, image_name, min_proportion=0.05, min_size=50)
+        store_faces_single(directory, image_name, directory_store, min_proportion, min_size)
 
 
 def valid_proportion(face_image, image, min_proportion, min_size):
@@ -83,17 +84,6 @@ def valid_proportion(face_image, image, min_proportion, min_size):
     valid_height = face_image.shape[0] > min_proportion * image.shape[0]
     valid_width = face_image.shape[1] > min_proportion * image.shape[1]
     return valid_height and valid_width and valid_size
-
-
-def code_face(code):
-    return {
-        'open': np.array([1, 0, 0, 0, 0]),
-        'closed': np.array([0, 1, 0, 0, 0]),
-        'sunglasses': np.array([0, 0, 1, 0, 0]),
-        'half': np.array([0, 0, 0, 1, 0]),
-        'unknown': np.array([0, 0, 0, 0, 1]),
-        'empty': np.array([0, 0, 0, 0, 0])
-    }.get(code, 'Not a valid operation')
 
 
 def classify_face(eye_right_open, eye_mirror_open, sunglasses, threshold):

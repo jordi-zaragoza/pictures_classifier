@@ -87,7 +87,7 @@ def blurr_classifier_grid(image, grid_size=[3,3], cpbd=True, motion=True):
     return max_laplacian, mean_laplacian, cpbd_value, motion_value
 
 
-def blurr_classifier_folder(path, grid_size=[3,3]):
+def blurr_classifier_folder(path, file_name='pictures_blur.csv', grid_size=[3,3]):
     image_list = os.listdir(path)
     image_list = general_lib.filter_images(image_list)
 
@@ -105,16 +105,15 @@ def blurr_classifier_folder(path, grid_size=[3,3]):
         motion_list.append(motion_value)   
         
     blurr_df = pd.DataFrame({'image_name': image_list, 'max_laplacian': max_laplacian_list, 'mean_laplacian': mean_laplacian_list, 'cpbd': cpbd_list, 'motion': motion_list})
-    path_save = 'output/results'
-    general_lib.create_folder(path_save)
-    blurr_df.to_csv(path_save+'/pictures_blur.csv')
+
+    general_lib.create_folder('output/results')
+    blurr_df.to_csv('output/results/'+file_name)
     
     return blurr_df
-    
 
 
-def blurr_sort(path, threshold=[150,100,200]):
-    blurr_df = pd.read_csv('output/results/pictures_blur.csv', index_col=0)
+def blurr_sort(path, file_name='pictures_blur.csv', threshold=[150,100,200]):
+    blurr_df = pd.read_csv('output/results/'pictures_blur.csv', index_col=0)
 
     for index in range(blurr_df.shape[0]):
         blurry_laplacian = blurr_df.max_laplacian[index]
@@ -124,3 +123,4 @@ def blurr_sort(path, threshold=[150,100,200]):
 
         if blurry_laplacian < threshold[0] or blurry_cpbd < threshold[1] or is_motion:
             general_lib.move_file(blurr_df.image_name[index], path, path + '/blurry')
+            

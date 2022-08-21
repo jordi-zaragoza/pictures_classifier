@@ -69,3 +69,13 @@ def move_file(file_name, path_directory, path_to_save):
 #     tf.keras.utils.save_img(
 #         path_directory + '/' + image_name, image, data_format=None, file_format=None, scale=True
 #     )
+
+
+# Train-Test split ------------------------------------------------------------------------------------------------
+def train_test_split(path='output/eyes', labels=['open','closed'], train_test_ratio=0.2):
+    for label in labels:
+        files_list = os.listdir(path+'/'+label)
+        test_len = round(len(files_list)*train_test_ratio)           
+        move_files(files_list[:test_len], path+'/'+label, path+"/new_dataset/test/"+label)
+        move_files(files_list[test_len:], path+'/'+label, path+"/new_dataset/train/"+label)
+
