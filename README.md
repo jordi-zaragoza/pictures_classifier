@@ -1,4 +1,4 @@
-# Open-Closed eye detector
+# Pictures classifier
 
 (work in progress...)
 
