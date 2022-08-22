@@ -7,8 +7,9 @@ import tensorflow as tf
 from lib import general_lib, model_lib
 
 
-def sort_eyes(path_eyes='output/eyes'):
-    path_result = 'output/results'
+def sort_eyes(directory):
+    path_eyes = directory + '/output/eyes'
+    path_result = directory + '/output/results'
     eyes_classification = pd.read_csv(path_result + '/eyes_classification.csv', index_col=0)
 
     for index in range(eyes_classification.shape[0]):
@@ -17,8 +18,8 @@ def sort_eyes(path_eyes='output/eyes'):
         general_lib.move_file(image_name, path_eyes, path_eyes + '/' + classification)
 
 
-def classify_eyes(path='output/eyes', threshold=0.0015):
-    image_list = os.listdir(path)
+def classify_eyes(path, threshold=0.0015):
+    image_list = os.listdir(path+'/output/eyes')
     image_list = general_lib.filter_images(image_list)
 
     model_eye = model_lib.load_model('model_eye_right')
@@ -26,7 +27,7 @@ def classify_eyes(path='output/eyes', threshold=0.0015):
     results = pd.DataFrame()
 
     for image_name in image_list:
-        eye_image = tf.keras.preprocessing.image.load_img(path + '/' + image_name)
+        eye_image = tf.keras.preprocessing.image.load_img(path+'/output/eyes/' + image_name)
         eye_image = tf.keras.preprocessing.image.img_to_array(eye_image)
         eye_open = open_eye_prediction(eye_image, model_eye)
 
@@ -39,11 +40,13 @@ def classify_eyes(path='output/eyes', threshold=0.0015):
 
     results['classification'] = results.open.apply(lambda x: eye_classifier(x,threshold))
 
-    general_lib.create_folder('output/results')
-    results.reset_index(drop=True).to_csv('output/results/eyes_classification.csv')
+    general_lib.create_folder(path+'/output/results')
+    results.reset_index(drop=True).to_csv(path+'/output/results/eyes_classification.csv')
 
 
-def store_eyes_single(image_name, path='output/faces', store_path='output/eyes'):
+def store_eyes_single(image_name, directory):
+    path = directory + '/output/faces'
+    store_path = directory + '/output/eyes'
     face_image = tf.keras.preprocessing.image.load_img(path + '/' + image_name)
     face_image = tf.keras.preprocessing.image.img_to_array(face_image)
     eye_right, eye_mirror = get_eyes(face_image)
@@ -52,12 +55,12 @@ def store_eyes_single(image_name, path='output/faces', store_path='output/eyes')
     general_lib.save_image(eye_mirror, image_name.split('.')[0] + '_eye_mirror.jpg', store_path)
 
 
-def store_eyes_from_directory(path='output/faces'):
-    image_list = os.listdir(path)
+def store_eyes_from_directory(directory):
+    image_list = os.listdir(directory)
     image_list = general_lib.filter_images(image_list)
 
     for image_name in image_list:
-        store_eyes_single(image_name)
+        store_eyes_single(image_name, directory)
 
 
 def get_eyes(face_image, amplitude=0.45, height=0.1, wide=0.1):

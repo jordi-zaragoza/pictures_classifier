@@ -1,4 +1,4 @@
-,image_name,max_laplacian,mean_laplacian,cpcb,motion
+,image_name,max_laplacian,mean_laplacian,cpbd,motion
 0,blurry5.jpg,11,8,31,364
 1,blurry4.jpeg,515,320,118,0
 2,images (1).jpeg,1523,542,444,0

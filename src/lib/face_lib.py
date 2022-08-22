@@ -7,8 +7,9 @@ import tensorflow as tf
 from lib import eye_lib, model_lib, general_lib, sunglasses_lib
 
 
-def classify_faces(path_eyes='output/results'):
-    eyes_classification = pd.read_csv(path_eyes+'/eyes_classification.csv', index_col=0)
+def classify_faces(directory):
+    path_results = directory+'/output/results'
+    eyes_classification = pd.read_csv(path_results+'/eyes_classification.csv', index_col=0)
 
     faces_table = pd.DataFrame()
     picture_name_list = eyes_classification.name.unique()
@@ -30,25 +31,26 @@ def classify_faces(path_eyes='output/results'):
     for col in ['open', 'closed', 'unknown']:
         pictures_table[col] = pictures_table[col].astype(int)
 
-    general_lib.create_folder(path_eyes)
-    faces_table.to_csv(path_eyes+'/faces_classification.csv')
-    pictures_table.to_csv(path_eyes+'/pictures_classification.csv')
+    general_lib.create_folder(path_results)
+    faces_table.to_csv(path_results+'/faces_classification.csv')
+    pictures_table.to_csv(path_results+'/pictures_classification.csv')
 
 
-def sort_sunglasses(path='output/faces'):
-    image_list = os.listdir(path)
+def sort_sunglasses(directory):
+    path_faces = directory + '/output/faces'
+    image_list = os.listdir(path_faces)
     image_list = general_lib.filter_images(image_list)
 
     model_sunglasses = model_lib.load_model('model_sunglasses')
 
     for image_name in image_list:
-        face_image = tf.keras.preprocessing.image.load_img(path + '/' + image_name)
+        face_image = tf.keras.preprocessing.image.load_img(path_faces + '/' + image_name)
         face_image = tf.keras.preprocessing.image.img_to_array(face_image)        
         
         sunglasses = sunglasses_lib.uses_sunglasses(face_image, model_sunglasses)
 
         if sunglasses:
-            general_lib.move_file(image_name, path, path + '/sunglasses')
+            general_lib.move_file(image_name, path_faces, path_faces + '/sunglasses')
             
 
 def store_faces_single(directory, image_name, directory_store='output/faces', min_proportion=0.05, min_size=50):
@@ -71,12 +73,12 @@ def store_faces_single(directory, image_name, directory_store='output/faces', mi
             print('Face', str(num), ': Not valid proportion ', face_image.shape[0], '->', base_image.shape[0])
 
 
-def store_faces_from_directory(directory, directory_store='output/faces', min_proportion=0.05, min_size=50):
+def store_faces_from_directory(directory, min_proportion=0.05, min_size=50):
     image_list = os.listdir(directory)
     image_list = general_lib.filter_images(image_list)
 
     for image_name in image_list:
-        store_faces_single(directory, image_name, directory_store, min_proportion, min_size)
+        store_faces_single(directory, image_name, directory+'/output/faces', min_proportion, min_size)
 
 
 def valid_proportion(face_image, image, min_proportion, min_size):
