@@ -8,8 +8,8 @@ from lib import general_lib, model_lib
 
 
 def sort_eyes(directory):
-    path_eyes = directory + '/output/eyes'
-    path_result = directory + '/output/results'
+    path_eyes = directory
+    path_result = directory + '/results'
     eyes_classification = pd.read_csv(path_result + '/eyes_classification.csv', index_col=0)
 
     for index in range(eyes_classification.shape[0]):
@@ -19,7 +19,7 @@ def sort_eyes(directory):
 
 
 def classify_eyes(path, threshold=0.0015):
-    image_list = os.listdir(path+'/output/eyes')
+    image_list = os.listdir(path)
     image_list = general_lib.filter_images(image_list)
 
     model_eye = model_lib.load_model('model_eye_right')
@@ -27,7 +27,7 @@ def classify_eyes(path, threshold=0.0015):
     results = pd.DataFrame()
 
     for image_name in image_list:
-        eye_image = tf.keras.preprocessing.image.load_img(path+'/output/eyes/' + image_name)
+        eye_image = tf.keras.preprocessing.image.load_img(path+'/'+image_name)
         eye_image = tf.keras.preprocessing.image.img_to_array(eye_image)
         eye_open = open_eye_prediction(eye_image, model_eye)
 
@@ -40,19 +40,19 @@ def classify_eyes(path, threshold=0.0015):
 
     results['classification'] = results.open.apply(lambda x: eye_classifier(x,threshold))
 
-    general_lib.create_folder(path+'/output/results')
-    results.reset_index(drop=True).to_csv(path+'/output/results/eyes_classification.csv')
+    general_lib.create_folder(path+'/results')
+    results.reset_index(drop=True).to_csv(path+'/results/eyes_classification.csv')
 
 
 def store_eyes_single(image_name, directory):
-    path = directory + '/output/faces'
-    store_path = directory + '/output/eyes'
+    path = directory
+    store_path = directory + '/eyes'
     face_image = tf.keras.preprocessing.image.load_img(path + '/' + image_name)
     face_image = tf.keras.preprocessing.image.img_to_array(face_image)
     eye_right, eye_mirror = get_eyes(face_image)
 
-    general_lib.save_image(eye_right, image_name.split('.')[0] + '_eye_right.jpg', store_path)
-    general_lib.save_image(eye_mirror, image_name.split('.')[0] + '_eye_mirror.jpg', store_path)
+    general_lib.save_image(eye_right, image_name.split('.')[0] + '_eye_right', store_path)
+    general_lib.save_image(eye_mirror, image_name.split('.')[0] + '_eye_mirror', store_path)
 
 
 def store_eyes_from_directory(directory):

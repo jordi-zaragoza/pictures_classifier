@@ -4,11 +4,22 @@ import numpy as np
 import pandas as pd
 import tensorflow as tf
 
-from lib import eye_lib, model_lib, general_lib, sunglasses_lib
+from lib import eye_lib, model_lib, general_lib, sunglasses_lib, image_format
+
+
+def sort_faces(directory):
+    path_eyes = directory
+    path_result = directory + '/eyes/results'
+    eyes_classification = pd.read_csv(path_result + '/faces_classification.csv', index_col=0)
+
+    for index in range(eyes_classification.shape[0]):
+        image_name = eyes_classification.name[index]+'_'+str(eyes_classification.face[index])+'.jpg'
+        classification = eyes_classification.classification[index]
+        general_lib.move_file(image_name, path_eyes, path_eyes + '/' + classification)
 
 
 def classify_faces(directory):
-    path_results = directory+'/output/results'
+    path_results = directory+'/results'
     eyes_classification = pd.read_csv(path_results+'/eyes_classification.csv', index_col=0)
 
     faces_table = pd.DataFrame()
@@ -29,15 +40,17 @@ def classify_faces(directory):
     pictures_table.columns = pictures_table.columns.values
 
     for col in ['open', 'closed', 'unknown']:
-        pictures_table[col] = pictures_table[col].astype(int)
+        try:
+            pictures_table[col] = pictures_table[col].astype(int)
+        except:
+            pictures_table[col] = 0
 
     general_lib.create_folder(path_results)
     faces_table.to_csv(path_results+'/faces_classification.csv')
     pictures_table.to_csv(path_results+'/pictures_classification.csv')
 
 
-def sort_sunglasses(directory):
-    path_faces = directory + '/output/faces'
+def sort_sunglasses(path_faces):
     image_list = os.listdir(path_faces)
     image_list = general_lib.filter_images(image_list)
 
@@ -68,23 +81,26 @@ def store_faces_single(directory, image_name, directory_store='output/faces', mi
         face_image = base_image[top:bottom, left:right]
 
         if valid_proportion(face_image, base_image, min_proportion, min_size):
-            general_lib.save_image(face_image, image_name.split('.')[0] + '_' + str(num) + '.jpg', directory_store)
-        else:
-            print('Face', str(num), ': Not valid proportion ', face_image.shape[0], '->', base_image.shape[0])
+            face_image_resize = image_format.resize_image(face_image, base_width=300)
+            general_lib.save_image(face_image_resize, image_name.split('.')[0] + '_' + str(num), directory_store)
 
 
-def store_faces_from_directory(directory, min_proportion=0.05, min_size=50):
+def store_faces_from_directory(directory, min_proportion=0.01, min_size=50):
     image_list = os.listdir(directory)
     image_list = general_lib.filter_images(image_list)
 
     for image_name in image_list:
-        store_faces_single(directory, image_name, directory+'/output/faces', min_proportion, min_size)
+        store_faces_single(directory, image_name, directory+'/faces', min_proportion, min_size)
 
 
 def valid_proportion(face_image, image, min_proportion, min_size):
     valid_size = face_image.shape[0] > min_size and face_image.shape[1] > min_size
     valid_height = face_image.shape[0] > min_proportion * image.shape[0]
     valid_width = face_image.shape[1] > min_proportion * image.shape[1]
+    if not valid_size:
+        print('Not valid size ', face_image.shape)
+    if not valid_height or not valid_width:
+        print('Not valid proportion ', face_image.shape[0], '->', image.shape[0])
     return valid_height and valid_width and valid_size
 
 
