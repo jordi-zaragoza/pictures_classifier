@@ -33,7 +33,7 @@ def cr2_to_jpg_folder(path):
             print('Image', str(num), image_name, 'done')
 
 
-def images_to_jpg_folder(path, path_save='.', base_width=1024.0):
+def images_to_jpg_folder(path, path_save='/pictures', base_width=1024.0):
     image_list = os.listdir(path)
     image_list = general_lib.filter_images(image_list)
     for num, image_name in enumerate(image_list):
@@ -52,5 +52,5 @@ def images_to_jpg_folder(path, path_save='.', base_width=1024.0):
 
         # img_gray = black_white_image(img_jpg)
         img_resize = resize_image(img_jpg, base_width)
-        general_lib.save_image(img_resize, image_name[:-4], path_save + '/pictures')
+        general_lib.save_image(img_resize, image_name[:-4], path_save)
 

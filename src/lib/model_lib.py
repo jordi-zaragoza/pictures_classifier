@@ -1,8 +1,30 @@
 import tensorflow as tf
 import os
 import matplotlib.pyplot as plt
+import numpy as np
 
 from lib import general_lib
+
+
+def predict(img, model, show_details=False, sure_rate=0.5):
+    x = tf.image.resize(img, (160, 160))
+    x = np.expand_dims(x, axis=0)
+
+    predictions = model.predict_on_batch(x).flatten()
+
+    # Apply a sigmoid since our model returns logits
+    predictions = tf.nn.sigmoid(predictions)
+    predictions_rated = tf.where(predictions < sure_rate, 0, 1)
+
+    if show_details:
+        print('Predictions:\n', predictions.numpy())
+        plt.figure(figsize=(10, 10))
+        ax = plt.subplot(3, 3, 1)
+        plt.imshow(img.astype(np.uint8))
+        plt.title([predictions[0]])
+        # plt.axis("off")
+
+    return predictions_rated.numpy()[0]
 
 
 def save_model(model, model_name):

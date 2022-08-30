@@ -1,14 +1,18 @@
-from lib import picture_lib
+from lib import picture_lib, general_lib
 
 path_folders = '/media/jzar/CAROL SSD/220603_Anna_i_Carles/'
-path_save = './output/boda_anna_carles/'
+path_save = '../data/work/boda_anna_carles/'
 
 # Retrieve pictures from usb drive in jpg for each folder
-picture_lib.get_pictures_from_folders(path_folders, path_save)
+# picture_lib.get_pictures_from_folders(path_folders, path_save)
 
 # Classify all folders
-picture_lib.classify_folders(path_save)
+time_classifier = general_lib.timeit(picture_lib.classify_folders)
+time_classifier(path_save)
 
+# Classify a folder
+# time_classifier = general_lib.timeit(picture_lib.classifier)
+# time_classifier(path_save+'/01_Firma/pictures')
 
 # Step 6: Check open/closed eyes folder by hand
 # Step 7: Manual labeling unknown eyes folder

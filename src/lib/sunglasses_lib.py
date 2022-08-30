@@ -1,24 +1,20 @@
-import matplotlib.pyplot as plt
-import numpy as np
+import os
 import tensorflow as tf
 
+from lib import general_lib, model_lib
 
-def uses_sunglasses(img, model, show_details=False):
-    x = tf.image.resize(img, (160, 160))
-    x = np.expand_dims(x, axis=0)
 
-    predictions = model.predict_on_batch(x).flatten()
+def sort_sunglasses_faces(path_faces, sunglasses_rate=.9, show_details=False):
+    image_list = os.listdir(path_faces)
+    image_list = general_lib.filter_images(image_list)
 
-    # Apply a sigmoid since our model returns logits
-    predictions = tf.nn.sigmoid(predictions)
-    predictions = tf.where(predictions < 0.5, 0, 1)
+    model_sunglasses = model_lib.load_model('model_sunglasses')
 
-    if show_details:
-        print('Predictions:\n', predictions.numpy())
-        plt.figure(figsize=(10, 10))
-        ax = plt.subplot(3, 3, 1)
-        plt.imshow(img)
-        # plt.title(class_names[predictions[0]])
-        plt.axis("off")
+    for image_name in image_list:
+        face_image = tf.keras.preprocessing.image.load_img(path_faces + '/' + image_name)
+        face_image = tf.keras.preprocessing.image.img_to_array(face_image)
 
-    return not predictions.numpy()[0]
+        sunglasses = not model_lib.predict(face_image, model_sunglasses,  show_details, sunglasses_rate)
+
+        if sunglasses:
+            general_lib.move_file(image_name, path_faces, path_faces + '/sunglasses')

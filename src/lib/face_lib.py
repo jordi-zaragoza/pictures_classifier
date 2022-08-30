@@ -50,23 +50,7 @@ def classify_faces(directory):
     pictures_table.to_csv(path_results+'/pictures_classification.csv')
 
 
-def sort_sunglasses(path_faces):
-    image_list = os.listdir(path_faces)
-    image_list = general_lib.filter_images(image_list)
-
-    model_sunglasses = model_lib.load_model('model_sunglasses')
-
-    for image_name in image_list:
-        face_image = tf.keras.preprocessing.image.load_img(path_faces + '/' + image_name)
-        face_image = tf.keras.preprocessing.image.img_to_array(face_image)        
-        
-        sunglasses = sunglasses_lib.uses_sunglasses(face_image, model_sunglasses)
-
-        if sunglasses:
-            general_lib.move_file(image_name, path_faces, path_faces + '/sunglasses')
-            
-
-def store_faces_single(directory, image_name, directory_store='output/faces', min_proportion=0.05, min_size=50):
+def store_faces_single(directory, image_name, directory_store, min_proportion=0.05, min_size=50):
     """
     This method stores the faces of a given picture on a folder called faces
     """
@@ -74,7 +58,7 @@ def store_faces_single(directory, image_name, directory_store='output/faces', mi
     base_image = face_recognition.load_image_file(image_path)
     face_locations = face_recognition.face_locations(base_image)
 
-    print("I found {} face(s) in this photograph.".format(len(face_locations)))
+    print(image_name, "I found {} face(s) in this photograph.".format(len(face_locations)))
 
     for num, face_location in enumerate(face_locations):
         top, right, bottom, left = face_location

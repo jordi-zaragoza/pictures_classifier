@@ -2,14 +2,31 @@ import cv2
 import os
 import pandas as pd
 import numpy as np
+import tensorflow as tf
 
-from lib import general_lib, blur_wavelet_lib, image_format
+from lib import general_lib, blur_wavelet_lib, image_format, model_lib
 
 import cpbd
 
-from PIL import Image
+
+# ------------------------------- Using Keras model -------------------------------#
+def sort_blurry_image(path, sharp_rate=.95, show_details=False):
+    image_list = os.listdir(path)
+    image_list = general_lib.filter_images(image_list)
+
+    model_blurry = model_lib.load_model('model_blurry')
+
+    for image_name in image_list:
+        image = tf.keras.preprocessing.image.load_img(path + '/' + image_name)
+        image = tf.keras.preprocessing.image.img_to_array(image)
+
+        sharp = model_lib.predict(image, model_blurry, show_details, sharp_rate)
+
+        if not sharp:
+            general_lib.move_file(image_name, path, path + '/blurry')
 
 
+# ------------------------------- Using Open cv -----------------------------------#
 def motion_classifier(img):
     per, blur_extent, classification = blur_wavelet_lib.blur_detect(img, 0.001)
     return round(10000 * per)
@@ -113,7 +130,7 @@ def blurr_sort(directory, file_name='pictures_blur.csv', threshold=(150, 100, 20
         blurry_motion = blurr_df.motion[index]
         is_motion = (blurry_motion > threshold[2]) and (blurry_laplacian < 1000)
 
-        if blurry_laplacian < threshold[0] or blurry_cpbd < threshold[1] or is_motion:
+        if blurry_laplacian < threshold[0] and blurry_cpbd < threshold[1] or is_motion:
             general_lib.move_file(blurr_df.image_name[index],
                                   directory,
                                   directory+'/blurry')

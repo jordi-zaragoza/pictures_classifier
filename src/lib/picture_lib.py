@@ -2,7 +2,7 @@ import os
 
 import pandas as pd
 
-from lib import general_lib, image_format, blurr_lib, face_lib, eye_lib
+from lib import general_lib, image_format, blurr_lib, face_lib, eye_lib, sunglasses_lib, profile_lib
 
 
 def sort_pictures(directory):
@@ -30,38 +30,33 @@ def retrieve_files(directory_pictures, directory_store='./output'):
     image_format.images_to_jpg_folder(directory_pictures, directory_store, base_width=2042.0)
 
 
-def classifier(directory_pictures='./output'):
-    # Convert raw images into jpg images
-    image_format.images_to_jpg_folder(directory_pictures, directory_pictures, base_width=2042.0)
-
+def classifier(directory_pictures='./output/pictures'):
     # Step 0: Sort blurry pictures
-    blurr_lib.blurr_classifier_folder(directory_pictures + '/pictures', grid_size=(3, 3), cpbd=False, motion=False)
-    blurr_lib.blurr_sort(directory_pictures + '/pictures', threshold=(50, 0, 0))
+    blurr_lib.sort_blurry_image(directory_pictures, sharp_rate=0.9)
 
     # Step 1: Retrieve-Store faces from each picture
-    face_lib.store_faces_from_directory(directory_pictures + '/pictures', min_proportion=0.01, min_size=80)
+    face_lib.store_faces_from_directory(directory_pictures, min_proportion=0.01, min_size=80)
 
     # Step 2: Sort faces (valid, blurry/not-valid/sunglasses)
-    blurr_lib.blurr_classifier_folder(directory_pictures + '/pictures/faces', file_name='faces_blur.csv',
-                                      grid_size=[1, 1])
-    blurr_lib.blurr_sort(directory_pictures + '/pictures/faces', file_name='faces_blur.csv', threshold=[4, 20, 200])
-    face_lib.sort_sunglasses(directory_pictures + '/pictures/faces')
+    blurr_lib.sort_blurry_image(directory_pictures+'/faces', sharp_rate=.9)
+    profile_lib.sort_profile_image(directory_pictures+'/faces', profile_rate=.99)
+    sunglasses_lib.sort_sunglasses_faces(directory_pictures+'/faces', sunglasses_rate=0.9)
 
-    # Step 3: Retrieve eyes
-    eye_lib.store_eyes_from_directory(directory_pictures + '/pictures/faces')
+    # # Step 3: Retrieve eyes
+    # eye_lib.store_eyes_from_directory(directory_pictures + '/faces')
+    #
+    # # Step 4: Classify eyes/faces/pictures
+    # eye_lib.classify_eyes(directory_pictures + '/faces/eyes')
+    # face_lib.classify_faces(directory_pictures + '/faces/eyes')
 
-    # Step 4: Classify eyes/faces/pictures
-    eye_lib.classify_eyes(directory_pictures + '/pictures/faces/eyes')
-    face_lib.classify_faces(directory_pictures + '/pictures/faces/eyes')
-
-    # Step 5: Sort eyes,faces,pictures (open, closed, unknown)
-    eye_lib.sort_eyes(directory_pictures + '/pictures/faces/eyes')
-    face_lib.sort_faces(directory_pictures + '/pictures/faces')
-    sort_pictures(directory_pictures + '/pictures/')
+    # # Step 5: Sort eyes,faces,pictures (open, closed, unknown)
+    # eye_lib.sort_eyes(directory_pictures + '/faces/eyes')
+    # face_lib.sort_faces(directory_pictures + '/faces')
+    # sort_pictures(directory_pictures + '/')
 
 
 def classify_folders(path_folders):
     folders = os.listdir(path_folders)
     # Process images
     for folder in folders:
-        classifier(path_folders+folder)
+        classifier(path_folders+folder+'/pictures')

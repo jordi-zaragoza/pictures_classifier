@@ -5,3 +5,4 @@ data/work/
 .idea/
 venv/
 data/datasets
+/src/output/

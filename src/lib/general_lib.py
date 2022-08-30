@@ -66,6 +66,17 @@ def move_file(file_name, path_directory, path_to_save):
 
 
 # Copy files --------------------------------------------------------------------------------------
+def copy_files(files_list, path_directory, path_to_save):
+    create_folder(path_to_save)
+    print(path_directory)
+    for file_name in files_list:
+        try:
+            shutil.copy(path_directory + '/' + file_name, path_to_save + '/' + path_directory.split('/')[-2][-3:]+'_'+file_name)
+        except:
+
+            print("Picture ", path_directory+'/'+file_name, " not found.")
+
+
 def copy_file(file_name, path_directory, path_to_save):
     create_folder(path_to_save)
     try:
@@ -77,7 +88,7 @@ def copy_file(file_name, path_directory, path_to_save):
 # Save files ------------------------------------------------------------------------------------------------
 def save_image(image, image_name, path_directory):
     create_folder(path_directory)
-    imageio.imwrite(path_directory+'/'+image_name+'.jpg', image)
+    imageio.imwrite(path_directory + '/' + image_name + '.jpg', image)
 
 
 # Train-Test split ------------------------------------------------------------------------------------------------
@@ -87,3 +98,18 @@ def train_test_split(path='output/eyes', labels=('open', 'closed'), train_test_r
         test_len = round(len(files_list) * train_test_ratio)
         move_files(files_list[:test_len], path + '/' + label, path + "/new_dataset/test/" + label)
         move_files(files_list[test_len:], path + '/' + label, path + "/new_dataset/train/" + label)
+
+
+# Time measuring ----------------------------------------------------------------------------------------------
+def timeit(func):
+    """
+    Decorator for measuring function's running time.
+    """
+    def measure_time(*args, **kw):
+        start_time = time.time()
+        result = func(*args, **kw)
+        print("Processing time of %s(): %.2f seconds."
+              % (func.__qualname__, time.time() - start_time))
+        return result
+
+    return measure_time
