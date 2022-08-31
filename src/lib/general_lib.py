@@ -65,6 +65,14 @@ def move_file(file_name, path_directory, path_to_save):
         print("Picture ", file_name, " not found.")
 
 
+def move_folder(path_directory, path_to_save):
+    create_folder(path_to_save)
+    try:
+        shutil.move(path_directory, path_to_save)
+    except:
+        print("Error.")
+
+
 # Copy files --------------------------------------------------------------------------------------
 def copy_files(files_list, path_directory, path_to_save):
     create_folder(path_to_save)

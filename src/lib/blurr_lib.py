@@ -10,7 +10,7 @@ import cpbd
 
 
 # ------------------------------- Using Keras model -------------------------------#
-def sort_blurry_image(path, sharp_rate=.95, show_details=False):
+def sort_blurry_image(path, blurry_rate=.95, show_details=False):
     image_list = os.listdir(path)
     image_list = general_lib.filter_images(image_list)
 
@@ -20,9 +20,9 @@ def sort_blurry_image(path, sharp_rate=.95, show_details=False):
         image = tf.keras.preprocessing.image.load_img(path + '/' + image_name)
         image = tf.keras.preprocessing.image.img_to_array(image)
 
-        sharp = model_lib.predict(image, model_blurry, show_details, sharp_rate)
+        sharp, blurry = model_lib.predict(image, model_blurry, show_details, false_percent=blurry_rate)
 
-        if not sharp:
+        if blurry:
             general_lib.move_file(image_name, path, path + '/blurry')
 
 

@@ -6,7 +6,14 @@ import numpy as np
 from lib import general_lib
 
 
-def predict(img, model, show_details=False, sure_rate=0.5):
+def train_all_models(PATH='../data/datasets/model', BATCH_SIZE=32, IMG_SIZE=(160, 160)):
+    model_trainer(PATH + '/eye_use', 'model_eye', BATCH_SIZE, IMG_SIZE)
+    model_trainer(PATH + '/blurry_use', 'model_blurry', BATCH_SIZE, IMG_SIZE)
+    model_trainer(PATH + '/profile_use', 'model_profile', BATCH_SIZE, IMG_SIZE)
+    model_trainer(PATH + '/sunglasses_use', 'model_sunglasses', BATCH_SIZE, IMG_SIZE)
+
+
+def predict(img, model, show_details=False, true_percent=0.5, false_percent=0.5):
     x = tf.image.resize(img, (160, 160))
     x = np.expand_dims(x, axis=0)
 
@@ -14,7 +21,6 @@ def predict(img, model, show_details=False, sure_rate=0.5):
 
     # Apply a sigmoid since our model returns logits
     predictions = tf.nn.sigmoid(predictions)
-    predictions_rated = tf.where(predictions < sure_rate, 0, 1)
 
     if show_details:
         print('Predictions:\n', predictions.numpy())
@@ -24,7 +30,13 @@ def predict(img, model, show_details=False, sure_rate=0.5):
         plt.title([predictions[0]])
         # plt.axis("off")
 
-    return predictions_rated.numpy()[0]
+    is_true = tf.where(predictions > true_percent, 1, 0)
+    is_false = tf.where(predictions < (1-false_percent), 1, 0)
+
+    # print(predictions.numpy()[0])
+    # print(is_false.numpy()[0])
+
+    return is_true.numpy()[0], is_false.numpy()[0]
 
 
 def save_model(model, model_name):

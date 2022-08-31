@@ -2,8 +2,8 @@ from lib import model_lib
 import tensorflow as tf
 import os
 
-PATH = '../datasets/eye_use'
-MODEL_NAME = 'model_eye'
+PATH = '../data/test/sunglasses_test'
+MODEL_NAME = 'model_sunglasses'
 
 BATCH_SIZE = 32
 IMG_SIZE = (160, 160)
