@@ -18,7 +18,7 @@ def sort_eyes(directory):
         general_lib.move_file(image_name, path_eyes, path_eyes + '/' + classification)
 
 
-def classify_eyes(path, threshold=0.0015):
+def classify_eyes(path, eye_sure=0.999):
     image_list = os.listdir(path)
     image_list = general_lib.filter_images(image_list)
 
@@ -38,7 +38,7 @@ def classify_eyes(path, threshold=0.0015):
                                                     'side': naming[3],
                                                     'open': eye_open}, [0])])
 
-    results['classification'] = results.open.apply(lambda x: eye_classifier(x,threshold))
+    results['classification'] = results.open.apply(lambda x: eye_classifier(x, 1-eye_sure))
 
     general_lib.create_folder(path+'/results')
     results.reset_index(drop=True).to_csv(path+'/results/eyes_classification.csv')
@@ -107,14 +107,14 @@ def open_eye_prediction(img, model, show_details=False):
     return predictions.numpy()[0]
 
 
-def open_eyes_in_face_prediction(img_face, model_right, show=False):
-    eye_right, eye_mirror = get_eyes(np.array(img_face))
-
-    eye_right_open = open_eye_prediction(eye_right, model_right)
-    eye_mirror_open = open_eye_prediction(eye_mirror, model_right)
-
-    if show:
-        print('Eye right:', eye_right_open)
-        print('Eye left:', eye_mirror_open)
-
-    return eye_right_open, eye_mirror_open
+# def open_eyes_in_face_prediction(img_face, model_right, show=False):
+#     eye_right, eye_mirror = get_eyes(np.array(img_face))
+#
+#     eye_right_open = open_eye_prediction(eye_right, model_right)
+#     eye_mirror_open = open_eye_prediction(eye_mirror, model_right)
+#
+#     if show:
+#         print('Eye right:', eye_right_open)
+#         print('Eye left:', eye_mirror_open)
+#
+#     return eye_right_open, eye_mirror_open

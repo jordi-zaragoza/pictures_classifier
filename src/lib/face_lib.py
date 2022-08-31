@@ -2,9 +2,8 @@ import os
 import face_recognition
 import numpy as np
 import pandas as pd
-import tensorflow as tf
 
-from lib import eye_lib, model_lib, general_lib, sunglasses_lib, image_format
+from lib import eye_lib, general_lib, image_format
 
 
 def sort_faces(directory):
@@ -58,7 +57,7 @@ def store_faces_single(directory, image_name, directory_store, min_proportion=0.
     base_image = face_recognition.load_image_file(image_path)
     face_locations = face_recognition.face_locations(base_image)
 
-    print(image_name, "I found {} face(s) in this photograph.".format(len(face_locations)))
+    # print(image_name, "I found {} face(s) in this photograph.".format(len(face_locations)))
 
     for num, face_location in enumerate(face_locations):
         top, right, bottom, left = face_location
@@ -73,7 +72,8 @@ def store_faces_from_directory(directory, min_proportion=0.01, min_size=50):
     image_list = os.listdir(directory)
     image_list = general_lib.filter_images(image_list)
 
-    for image_name in image_list:
+    for num, image_name in enumerate(image_list):
+        print('Percentage pictures analyzed: ', str(round(100*num/len(image_list), 2)))
         store_faces_single(directory, image_name, directory+'/faces', min_proportion, min_size)
 
 
@@ -81,10 +81,10 @@ def valid_proportion(face_image, image, min_proportion, min_size):
     valid_size = face_image.shape[0] > min_size and face_image.shape[1] > min_size
     valid_height = face_image.shape[0] > min_proportion * image.shape[0]
     valid_width = face_image.shape[1] > min_proportion * image.shape[1]
-    if not valid_size:
-        print('Not valid size ', face_image.shape)
-    if not valid_height or not valid_width:
-        print('Not valid proportion ', face_image.shape[0], '->', image.shape[0])
+    # if not valid_size:
+    #     print('Not valid size ', face_image.shape)
+    # if not valid_height or not valid_width:
+    #     print('Not valid proportion ', face_image.shape[0], '->', image.shape[0])
     return valid_height and valid_width and valid_size
 
 

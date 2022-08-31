@@ -6,11 +6,11 @@ import numpy as np
 from lib import general_lib
 
 
-def train_all_models(PATH='../data/datasets/model', BATCH_SIZE=32, IMG_SIZE=(160, 160)):
-    model_trainer(PATH + '/eye_use', 'model_eye', BATCH_SIZE, IMG_SIZE)
-    model_trainer(PATH + '/blurry_use', 'model_blurry', BATCH_SIZE, IMG_SIZE)
-    model_trainer(PATH + '/profile_use', 'model_profile', BATCH_SIZE, IMG_SIZE)
-    model_trainer(PATH + '/sunglasses_use', 'model_sunglasses', BATCH_SIZE, IMG_SIZE)
+def retrain_all_models(PATH='../data/datasets/model', BATCH_SIZE=32, IMG_SIZE=(160, 160)):
+    model_retrain(PATH + '/eye_use', 'model_eye', BATCH_SIZE, IMG_SIZE, total_epochs=5)
+    model_retrain(PATH + '/blurry_use', 'model_blurry', BATCH_SIZE, IMG_SIZE, total_epochs=10)
+    model_retrain(PATH + '/profile_use', 'model_profile', BATCH_SIZE, IMG_SIZE, total_epochs=5)
+    model_retrain(PATH + '/sunglasses_use', 'model_sunglasses', BATCH_SIZE, IMG_SIZE, total_epochs=5)
 
 
 def predict(img, model, show_details=False, true_percent=0.5, false_percent=0.5):
@@ -183,12 +183,12 @@ def model_evaluate(model, test_dataset, class_names):
     print('Predictions:\n', predictions.numpy())
     print('Labels:\n', label_batch)
 
-    plt.figure(figsize=(10, 10))
-    for i in range(9):
-        ax = plt.subplot(3, 3, i + 1)
-        plt.imshow(image_batch[i].astype("uint8"))
-        plt.title(class_names[predictions[i]])
-        plt.axis("off")
+    # plt.figure(figsize=(10, 10))
+    # for i in range(9):
+    #     ax = plt.subplot(3, 3, i + 1)
+    #     plt.imshow(image_batch[i].astype("uint8"))
+    #     plt.title(class_names[predictions[i]])
+    #     plt.axis("off")
 
 
 def add_metrics(history, acc=0, val_acc=0, loss=0, val_loss=0):
@@ -303,6 +303,39 @@ def model_trainer(PATH, MODEL_NAME, BATCH_SIZE, IMG_SIZE):
 
     acc, val_acc, loss, val_loss = add_metrics(history_fine, acc, val_acc, loss, val_loss)
     plot_metrics_history(acc, val_acc, loss, val_loss, initial_epochs)
+
+    # Verify prediction ----------------------------------------------------------------------
+    model_evaluate(model, test_dataset, class_names)
+
+    # Save model ---------------------------------------------------------------------------------
+    save_model(model, model_name=MODEL_NAME)
+
+
+def model_retrain(PATH, MODEL_NAME, BATCH_SIZE, IMG_SIZE, total_epochs=10):
+    train_dataset_i, validation_dataset_i, test_dataset_i = get_train_val_test_sets(PATH, BATCH_SIZE, IMG_SIZE)
+    class_names = train_dataset_i.class_names
+
+    train_dataset, validation_dataset, test_dataset = autotune_sets(train_dataset_i, validation_dataset_i,
+                                                                    test_dataset_i)
+
+    model = load_model(model_name=MODEL_NAME)
+
+    base_learning_rate = 0.0001
+
+    model.compile(loss=tf.keras.losses.BinaryCrossentropy(from_logits=True),
+                  optimizer=tf.keras.optimizers.RMSprop(learning_rate=base_learning_rate / 10),
+                  metrics=['accuracy'])
+
+    model.summary()
+
+    len(model.trainable_variables)
+
+    history_fine = model.fit(train_dataset,
+                             epochs=total_epochs,
+                             validation_data=validation_dataset)
+
+    # acc, val_acc, loss, val_loss = get_metrics(history_fine)
+    # plot_metrics_history(acc, val_acc, loss, val_loss)
 
     # Verify prediction ----------------------------------------------------------------------
     model_evaluate(model, test_dataset, class_names)
