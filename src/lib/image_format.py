@@ -1,5 +1,6 @@
 # Convert raw images into jpg images
 import cv2
+import pandas as pd
 import rawpy
 import os
 from lib import general_lib
@@ -53,4 +54,3 @@ def images_to_jpg_folder(path, path_save='/pictures', base_width=1024.0):
         # img_gray = black_white_image(img_jpg)
         img_resize = resize_image(img_jpg, base_width)
         general_lib.save_image(img_resize, image_name[:-4], path_save)
-
