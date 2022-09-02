@@ -53,3 +53,4 @@ def rearrange_folders(directory):
     general_lib.move_folder(directory_pictures + '/faces/eyes/closed', directory_datasets + '/eyes')
     general_lib.move_folder(directory_pictures + '/faces/eyes/open', directory_datasets + '/eyes')
     general_lib.move_folder(directory_pictures + '/faces/eyes/unknown', directory_datasets + '/eyes')
+    general_lib.move_folder(directory_pictures + '/faces/eyes/results', directory)

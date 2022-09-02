@@ -70,7 +70,7 @@ def move_folder(path_directory, path_to_save):
     try:
         shutil.move(path_directory, path_to_save)
     except:
-        print("Error.")
+        print("Error path not found:", path_directory)
 
 
 # Copy files --------------------------------------------------------------------------------------

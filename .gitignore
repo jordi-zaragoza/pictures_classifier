@@ -7,3 +7,4 @@ venv/
 data/datasets
 /src/output/
 /src/.ipynb_checkpoints/
+/data/production/
