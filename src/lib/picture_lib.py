@@ -24,7 +24,7 @@ def get_pictures_from_folders(path_folders, path_save):
 
 def retrieve_files(directory_pictures, directory_store='./output'):
     # Convert raw images into jpg images
-    image_format.images_to_jpg_folder(directory_pictures+'/pictures', directory_store, base_width=2042.0)
+    image_format.images_to_jpg_folder(directory_pictures, directory_store, base_width=2042.0)
 
 
 # Writes rating value in the xmp file

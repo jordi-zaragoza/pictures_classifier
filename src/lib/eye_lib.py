@@ -18,7 +18,7 @@ def sort_eyes(directory):
         general_lib.move_file(image_name, path_eyes, path_eyes + '/' + classification)
 
 
-def classify_eyes(path, eye_sure=0.999):
+def classify_eyes(path, threshold_closed=0.001, threshold_open=0.5):
     image_list = os.listdir(path)
     image_list = general_lib.filter_images(image_list)
 
@@ -38,7 +38,7 @@ def classify_eyes(path, eye_sure=0.999):
                                                     'side': naming[3],
                                                     'open': eye_open}, [0])])
 
-    results['classification'] = results.open.apply(lambda x: eye_classifier(x, 1-eye_sure))
+    results['classification'] = results.open.apply(lambda x: eye_classifier(x, threshold_closed, threshold_open))
 
     general_lib.create_folder(path+'/results')
     results.reset_index(drop=True).to_csv(path+'/results/eyes_classification.csv')
@@ -74,10 +74,10 @@ def get_eyes(face_image, amplitude=0.45, height=0.1, wide=0.1):
     return eye_right, eye_mirror
 
 
-def eye_classifier(eye_open, threshold=0.0015):
-    if eye_open > 1 - threshold:
+def eye_classifier(eye_open, threshold_closed, threshold_open):
+    if eye_open > threshold_open:
         return 'open'
-    elif eye_open < threshold:
+    elif eye_open < threshold_closed:
         return 'closed'
     else:
         return 'unknown'

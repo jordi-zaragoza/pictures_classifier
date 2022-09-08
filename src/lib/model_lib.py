@@ -25,7 +25,7 @@ def predict(img, model, show_details=False, true_percent=0.5, false_percent=0.5)
     if show_details:
         print('Predictions:\n', predictions.numpy())
         plt.figure(figsize=(10, 10))
-        ax = plt.subplot(3, 3, 1)
+        plt.subplot(3, 3, 1)
         plt.imshow(img.astype(np.uint8))
         plt.title([predictions[0]])
         # plt.axis("off")
@@ -81,7 +81,7 @@ def get_train_val_test_sets(PATH, BATCH_SIZE, IMG_SIZE, show=False):
         plt.figure(figsize=(10, 10))
         for images, labels in train_dataset.take(1):
             for i in range(9):
-                ax = plt.subplot(3, 3, i + 1)
+                plt.subplot(3, 3, i + 1)
                 plt.imshow(images[i].numpy().astype("uint8"))
                 plt.title(train_dataset.class_names[labels[i]])
                 plt.axis("off")
@@ -122,7 +122,7 @@ def data_augmentation_layer(train_dataset):
         plt.figure(figsize=(10, 10))
         first_image = image[0]
         for i in range(9):
-            ax = plt.subplot(3, 3, i + 1)
+            plt.subplot(3, 3, i + 1)
             augmented_image = data_augmentation(tf.expand_dims(first_image, 0))
             plt.imshow(augmented_image[0] / 255)
             plt.axis('off')
@@ -168,7 +168,7 @@ def create_model(train_dataset, base_model, data_augmentation):
     return model
 
 
-def model_evaluate(model, test_dataset, class_names):
+def model_evaluate(model, test_dataset):
     loss, accuracy = model.evaluate(test_dataset)
     print('Test accuracy :', accuracy)
 
@@ -182,13 +182,6 @@ def model_evaluate(model, test_dataset, class_names):
 
     print('Predictions:\n', predictions.numpy())
     print('Labels:\n', label_batch)
-
-    # plt.figure(figsize=(10, 10))
-    # for i in range(9):
-    #     ax = plt.subplot(3, 3, i + 1)
-    #     plt.imshow(image_batch[i].astype("uint8"))
-    #     plt.title(class_names[predictions[i]])
-    #     plt.axis("off")
 
 
 def add_metrics(history, acc=0, val_acc=0, loss=0, val_loss=0):
@@ -240,7 +233,6 @@ def plot_metrics_history(acc, val_acc, loss, val_loss, initial_epochs=0):
 
 def model_trainer(PATH, MODEL_NAME, BATCH_SIZE, IMG_SIZE):
     train_dataset_i, validation_dataset_i, test_dataset_i = get_train_val_test_sets(PATH, BATCH_SIZE, IMG_SIZE)
-    class_names = train_dataset_i.class_names
     data_augmentation = data_augmentation_layer(train_dataset_i)
 
     train_dataset, validation_dataset, test_dataset = autotune_sets(train_dataset_i, validation_dataset_i,
@@ -255,11 +247,8 @@ def model_trainer(PATH, MODEL_NAME, BATCH_SIZE, IMG_SIZE):
                   loss=tf.keras.losses.BinaryCrossentropy(from_logits=True),
                   metrics=['accuracy'])
     model.summary()
-
     len(model.trainable_variables)
-
     initial_epochs = 10
-
     loss0, accuracy0 = model.evaluate(validation_dataset)
 
     print("initial loss: {:.2f}".format(loss0))
@@ -288,9 +277,7 @@ def model_trainer(PATH, MODEL_NAME, BATCH_SIZE, IMG_SIZE):
     model.compile(loss=tf.keras.losses.BinaryCrossentropy(from_logits=True),
                   optimizer=tf.keras.optimizers.RMSprop(learning_rate=base_learning_rate / 10),
                   metrics=['accuracy'])
-
     model.summary()
-
     len(model.trainable_variables)
 
     fine_tune_epochs = 10
@@ -303,42 +290,27 @@ def model_trainer(PATH, MODEL_NAME, BATCH_SIZE, IMG_SIZE):
 
     acc, val_acc, loss, val_loss = add_metrics(history_fine, acc, val_acc, loss, val_loss)
     plot_metrics_history(acc, val_acc, loss, val_loss, initial_epochs)
-
-    # Verify prediction ----------------------------------------------------------------------
-    model_evaluate(model, test_dataset, class_names)
-
-    # Save model ---------------------------------------------------------------------------------
+    model_evaluate(model, test_dataset)
     save_model(model, model_name=MODEL_NAME)
 
 
 def model_retrain(PATH, MODEL_NAME, BATCH_SIZE, IMG_SIZE, total_epochs=10):
+    print('-------------------------------')
+    print('Retraining model: ', MODEL_NAME)
+    print('-------------------------------')
     train_dataset_i, validation_dataset_i, test_dataset_i = get_train_val_test_sets(PATH, BATCH_SIZE, IMG_SIZE)
-    class_names = train_dataset_i.class_names
 
     train_dataset, validation_dataset, test_dataset = autotune_sets(train_dataset_i, validation_dataset_i,
                                                                     test_dataset_i)
 
     model = load_model(model_name=MODEL_NAME)
-
     base_learning_rate = 0.0001
-
     model.compile(loss=tf.keras.losses.BinaryCrossentropy(from_logits=True),
                   optimizer=tf.keras.optimizers.RMSprop(learning_rate=base_learning_rate / 10),
                   metrics=['accuracy'])
-
     model.summary()
-
     len(model.trainable_variables)
 
-    history_fine = model.fit(train_dataset,
-                             epochs=total_epochs,
-                             validation_data=validation_dataset)
-
-    # acc, val_acc, loss, val_loss = get_metrics(history_fine)
-    # plot_metrics_history(acc, val_acc, loss, val_loss)
-
-    # Verify prediction ----------------------------------------------------------------------
-    model_evaluate(model, test_dataset, class_names)
-
-    # Save model ---------------------------------------------------------------------------------
+    model.fit(train_dataset, epochs=total_epochs, validation_data=validation_dataset)
+    model_evaluate(model, test_dataset)
     save_model(model, model_name=MODEL_NAME)

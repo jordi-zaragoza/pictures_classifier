@@ -21,7 +21,7 @@ def classifier(directory='./output'):
     eye_lib.store_eyes_from_directory(directory_pictures + '/faces')
 
     # Step 4: Classify eyes/faces/pictures
-    eye_lib.classify_eyes(directory_pictures + '/faces/eyes', eye_sure=0.99)
+    eye_lib.classify_eyes(directory_pictures + '/faces/eyes', threshold_closed=0.001, threshold_open=0.5)
     face_lib.classify_faces(directory_pictures + '/faces/eyes')
 
     # Step 5: Sort eyes,faces,pictures (open, closed, unknown)
