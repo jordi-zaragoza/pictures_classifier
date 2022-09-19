@@ -22,7 +22,7 @@ def classify_eyes(path, threshold_closed=0.001, threshold_open=0.5):
     image_list = os.listdir(path)
     image_list = general_lib.filter_images(image_list)
 
-    model_eye = model_lib.load_model('model_eye_right')
+    model_eye = model_lib.load_model('model_eye')
 
     results = pd.DataFrame()
 

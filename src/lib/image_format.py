@@ -45,7 +45,6 @@ def images_to_jpg_folder(path, path_save, base_width=1024.0):
                 print('copied and transformed to .jpg')
             except:
                 print('cannot transform to jpg')
-                return 0
 
         else:
             img_jpg = mpimg.imread(path + '/' + image_name)

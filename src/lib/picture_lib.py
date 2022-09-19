@@ -9,7 +9,7 @@ def sort_pictures(directory):
     eyes_classification = pd.read_csv(path_result + '/pictures_classification.csv', index_col=0)
 
     for index in range(eyes_classification.shape[0]):
-        image_name = eyes_classification.name[index] + '.jpg'
+        image_name = str(eyes_classification.name[index]) + '.jpg'
         closed_faces = eyes_classification.closed[index]
         if closed_faces > 0:
             general_lib.move_file(image_name, path, path + '/closed_eyes')

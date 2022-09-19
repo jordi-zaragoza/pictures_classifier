@@ -121,3 +121,14 @@ def timeit(func):
         return result
 
     return measure_time
+
+
+def replace_underscore(txt):
+    return txt.replace('_', '-')
+
+
+def rename_all_files_underscore(path):
+    list_files = os.listdir(path)
+    for file_name in list_files:
+        new_name = replace_underscore(file_name)
+        os.rename(path+'/'+file_name, path+'/'+new_name)

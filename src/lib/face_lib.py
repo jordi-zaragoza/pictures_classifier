@@ -12,7 +12,7 @@ def sort_faces(directory):
     eyes_classification = pd.read_csv(path_result + '/faces_classification.csv', index_col=0)
 
     for index in range(eyes_classification.shape[0]):
-        image_name = eyes_classification.name[index]+'_'+str(eyes_classification.face[index])+'.jpg'
+        image_name = str(eyes_classification.name[index])+'_'+str(eyes_classification.face[index])+'.jpg'
         classification = eyes_classification.classification[index]
         general_lib.move_file(image_name, path_eyes, path_eyes + '/' + classification)
 

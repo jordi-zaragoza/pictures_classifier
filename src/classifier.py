@@ -1,8 +1,8 @@
 from lib import general_lib, classifier_lib, picture_lib
 from lib import model_lib
 
-path_folder = r'/media/jzar/CAROL SSD/220826 BRUTO Nataly & Wim/09 Cena'
-path_save = '../data/production/boda_nataly_wim/09_cena'
+path_folder = r'../data/production/02 Wim'
+path_save = r'../data/production/transformed/02 Wim'
 
 # # Steps -1, Get jpgs from raw -------------------------------------------
 # Retrieve pictures from usb drive in jpg
@@ -14,6 +14,8 @@ path_save = '../data/production/boda_nataly_wim/09_cena'
 # time_classifier = general_lib.timeit(picture_lib.retrieve_files)
 # time_classifier(path_folder, path_save)
 
+# general_lib.rename_all_files_underscore(path_save+'/pictures')
+
 # # Steps 0 to 6, classifier ----------------------------------------------
 
 # Classify all folders
@@ -21,8 +23,8 @@ path_save = '../data/production/boda_nataly_wim/09_cena'
 # time_classifier(path_save)
 
 # Classify single folder
-# time_classifier = general_lib.timeit(classifier_lib.classifier)
-# time_classifier(path_save)
+time_classifier = general_lib.timeit(classifier_lib.classifier)
+time_classifier(path_save)
 
 # Step 7: rate the raw files ----------------------------------------------
 # picture_lib.rate_pictures(path_result=path_save+'/fotos/results/pictures_classification.csv',
