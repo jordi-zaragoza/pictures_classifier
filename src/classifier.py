@@ -4,8 +4,10 @@ from lib import model_lib
 path_folder = r'../data/production/02 Wim'
 path_save = r'../data/production/transformed/02 Wim'
 
-# # Steps -1, Get jpgs from raw -------------------------------------------
+# # Steps -1, Get jpgs from raw and rename -------------------------------------------
 # Retrieve pictures from usb drive in jpg
+
+# general_lib.rename_all_files_underscore(path_folder)
 
 # for multiple folders
 # picture_lib.get_pictures_from_folders(path_folders, path_save)
@@ -13,8 +15,6 @@ path_save = r'../data/production/transformed/02 Wim'
 # for single folder
 # time_classifier = general_lib.timeit(picture_lib.retrieve_files)
 # time_classifier(path_folder, path_save)
-
-# general_lib.rename_all_files_underscore(path_save+'/pictures')
 
 # # Steps 0 to 6, classifier ----------------------------------------------
 
