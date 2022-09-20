@@ -81,10 +81,6 @@ def valid_proportion(face_image, image, min_proportion, min_size):
     valid_size = face_image.shape[0] > min_size and face_image.shape[1] > min_size
     valid_height = face_image.shape[0] > min_proportion * image.shape[0]
     valid_width = face_image.shape[1] > min_proportion * image.shape[1]
-    # if not valid_size:
-    #     print('Not valid size ', face_image.shape)
-    # if not valid_height or not valid_width:
-    #     print('Not valid proportion ', face_image.shape[0], '->', image.shape[0])
     return valid_height and valid_width and valid_size
 
 

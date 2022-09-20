@@ -37,6 +37,8 @@ def classify_folders(path_folders):
     folders = os.listdir(path_folders)
     # Process images
     for folder in folders:
+        print('================================================================')
+        print('Folder to classify:', path_folders+'/'+folder)
         try:
             classifier(path_folders+'/'+folder)
         except:

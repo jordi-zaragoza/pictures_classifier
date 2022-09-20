@@ -3,13 +3,23 @@ import pandas as pd
 from lib import general_lib, image_format
 
 
-def sort_pictures(directory):
+def sort_pictures_multiple_folders(path_folders, path_save):
+    folders = os.listdir(path_folders)
+    for folder in folders:
+        try:
+            sort_pictures(path_folders+'/'+folder, path_save+'/'+folder+'/results', '.CR2')
+        except:
+            print('Err: cannot sort pictures on folder: ', path_folders+'/'+folder)
+
+def sort_pictures(directory, path_result=None,  ext='.jpg'):
     path = directory
-    path_result = directory + 'faces/eyes/results'
+    if not path_result:
+        path_result = directory + 'faces/eyes/results'
+
     eyes_classification = pd.read_csv(path_result + '/pictures_classification.csv', index_col=0)
 
     for index in range(eyes_classification.shape[0]):
-        image_name = str(eyes_classification.name[index]) + '.jpg'
+        image_name = str(eyes_classification.name[index]) + ext
         closed_faces = eyes_classification.closed[index]
         if closed_faces > 0:
             general_lib.move_file(image_name, path, path + '/closed_eyes')
@@ -23,6 +33,8 @@ def get_pictures_from_folders(path_folders, path_save):
 
 
 def retrieve_files(directory_pictures, directory_store='./output'):
+    # Change file names in order to remove underscore
+    general_lib.rename_all_files_underscore(directory_pictures)
     # Convert raw images into jpg images
     image_format.images_to_jpg_folder(directory_pictures, directory_store, base_width=2042.0)
 
